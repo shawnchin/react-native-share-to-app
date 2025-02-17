@@ -126,7 +126,24 @@ TODO...
 
 ## Usage
 
-TODO ...
+
+```javascript
+import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
+
+// To subscribe share intent
+ReceiveSharingIntent.subscribeToSharedFiles(files => {
+     console.log(files); // do what you have to do with the files
+   }, 
+   (error) => {
+    console.log(error);
+   }, 
+   'YOUR_APP_PROTO' 
+);
+
+
+// To clear Intents
+ReceiveSharingIntent.clearReceivedFiles();
+```
 
 ## Acknowledgement
 

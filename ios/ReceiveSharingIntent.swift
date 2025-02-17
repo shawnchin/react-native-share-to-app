@@ -1,14 +1,14 @@
 import Foundation
 import Photos
+import UIKit
 
 @objc(ReceiveSharingIntent)
 class ReceiveSharingIntent: NSObject {
 
-    private var initialMedia: [SharedMediaFile]? = nil
     private var latestMedia: [SharedMediaFile]? = nil
-
-    private var initialText: String? = nil
     private var latestText: String? = nil
+    let maxImageDim = 1200 as CGFloat
+    let compressionQuality = 0.5
 
     @objc
     func getFileNames(
@@ -36,51 +36,32 @@ class ReceiveSharingIntent: NSObject {
         if let url = url {
             let appDomain = Bundle.main.bundleIdentifier!
             let userDefaults = UserDefaults(suiteName: "group.\(appDomain)")
-            if url.fragment == "media" {
+            if url.fragment == "file" {
                 if let key = url.host?.components(separatedBy: "=").last,
                     let json = userDefaults?.object(forKey: key) as? Data
                 {
                     let sharedArray = decode(data: json)
                     let sharedMediaFiles: [SharedMediaFile] =
                         sharedArray.compactMap {
-                            guard let path = getAbsolutePath(for: $0.path)
-                            else {
+                            if let path = getAbsolutePath(for: $0.path) {
+                                if $0.type == .image {
+                                    if let compressed =
+                                        self.rescaleAndCompressImage(
+                                            path: path)
+                                    {
+                                        return SharedMediaFile.init(
+                                            path: compressed, type: $0.type)
+                                    } else {
+                                        return nil
+                                    }
+                                } else {
+                                    return SharedMediaFile.init(
+                                        path: path, type: $0.type)
+                                }
+                            } else {
                                 return nil
-                            }
-                            if $0.type == .video && $0.thumbnail != nil {
-                                let thumbnail = getAbsolutePath(
-                                    for: $0.thumbnail!)
-                                return SharedMediaFile.init(
-                                    path: path, thumbnail: thumbnail,
-                                    duration: $0.duration, type: $0.type)
-                            } else if $0.type == .video && $0.thumbnail == nil {
-                                return SharedMediaFile.init(
-                                    path: path, thumbnail: nil,
-                                    duration: $0.duration, type: $0.type)
                             }
 
-                            return SharedMediaFile.init(
-                                path: path, thumbnail: nil,
-                                duration: $0.duration, type: $0.type)
-                        }
-                    latestMedia = sharedMediaFiles
-                    let json = toJson(data: latestMedia)
-                    return json
-                }
-            } else if url.fragment == "file" {
-                if let key = url.host?.components(separatedBy: "=").last,
-                    let json = userDefaults?.object(forKey: key) as? Data
-                {
-                    let sharedArray = decode(data: json)
-                    let sharedMediaFiles: [SharedMediaFile] =
-                        sharedArray.compactMap {
-                            guard let path = getAbsolutePath(for: $0.path)
-                            else {
-                                return nil
-                            }
-                            return SharedMediaFile.init(
-                                path: path, thumbnail: nil, duration: nil,
-                                type: $0.type)
                         }
                     latestMedia = sharedMediaFiles
                     let json = toJson(data: latestMedia)
@@ -114,6 +95,50 @@ class ReceiveSharingIntent: NSObject {
             return "error"
         }
         return "invalid group name"
+    }
+
+    private func rescaleAndCompressImage(path: String) -> String? {
+        do {
+            // Read image data
+            if let fileData = try? Data.init(contentsOf: URL(string: path)!) {
+                if let image = UIImage(data: fileData) {
+                    // rescale image and write as compressed JPG
+                    if let compressed = image.scale(
+                        maxWidth: maxImageDim, maxHeight: maxImageDim
+                    ).jpegData(compressionQuality: compressionQuality) {
+                        // create a new path to write compressed file to
+                        let oldFilename = (path as NSString).lastPathComponent
+                        let filenamePrefix = (oldFilename as NSString)
+                            .deletingPathExtension
+                        let newPath = getFilepathInTempDir(
+                            filenamePrefix: filenamePrefix, ext: "jpg")
+
+                        // write to out compressed image and return path
+                        try compressed.write(to: newPath)
+                        return newPath.path
+                    }
+                }
+            }
+        } catch (let error) {
+            print("Image compression failed: \(error)")
+        }
+        return nil
+    }
+
+    private func getFilepathInTempDir(filenamePrefix: String, ext: String)
+        -> URL
+    {
+        // If possible, we try to keep the same name
+        var url = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "\(filenamePrefix).\(ext)")
+
+        // If it clashes with an existing file, add a suffix to make it unique
+        if FileManager.default.fileExists(atPath: url.path) {
+            url = FileManager.default.temporaryDirectory.appendingPathComponent(
+                "\(filenamePrefix)\(Date().timestamp()).\(ext)")
+        }
+
+        return url
     }
 
     private func getAbsolutePath(for identifier: String) -> String? {
@@ -167,17 +192,10 @@ class ReceiveSharingIntent: NSObject {
 
     class SharedMediaFile: Codable {
         var path: String
-        var thumbnail: String?  // video thumbnail
-        var duration: Double?  // video duration in milliseconds
         var type: SharedMediaType
 
-        init(
-            path: String, thumbnail: String?, duration: Double?,
-            type: SharedMediaType
-        ) {
+        init(path: String, type: SharedMediaType) {
             self.path = path
-            self.thumbnail = thumbnail
-            self.duration = duration
             self.type = type
         }
     }
@@ -196,5 +214,35 @@ class ReceiveSharingIntent: NSObject {
     @objc
     static func requiresMainQueueSetup() -> Bool {
         return true
+    }
+}
+
+extension Date {
+    func timestamp() -> Int64 {
+        return Int64(self.timeIntervalSince1970 * 1000)
+    }
+}
+
+extension UIImage {
+    func scale(maxWidth: CGFloat, maxHeight: CGFloat) -> UIImage {
+        let maxSize = CGSize(width: maxWidth, height: maxHeight)
+
+        let availableRect = AVFoundation.AVMakeRect(
+            aspectRatio: self.size,
+            insideRect: .init(origin: .zero, size: maxSize)
+        )
+        let targetSize = availableRect.size
+
+        // Set scale of renderer so that 1pt == 1px
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let renderer = UIGraphicsImageRenderer(size: targetSize, format: format)
+
+        // Resize the image
+        let resized = renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
+
+        return resized
     }
 }

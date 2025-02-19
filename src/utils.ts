@@ -33,7 +33,7 @@ class Utils implements IUtils {
           const path = files[i].path;
           const obj = {
             ...objects,
-            fileName: this.getFileName(path),
+            fileName: files[i].fileName || this.getFileName(path),
             extension: this.getExtension(path),
             mimeType: this.getMimeType(path),
             filePath: path,

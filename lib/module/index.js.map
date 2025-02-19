@@ -1,1 +1,1 @@
-{"version":3,"sources":["index.tsx"],"names":["ReceiveSharingIntentModule"],"mappings":"AAAA,OAAOA,0BAAP,MAAuC,wBAAvC;AAEA,eAAe,IAAIA,0BAAJ,EAAf","sourcesContent":["import ReceiveSharingIntentModule from \"./ReceiveSharingIntent\";\n\nexport default new ReceiveSharingIntentModule();"]}
+{"version":3,"names":["ReceiveSharingIntentModule"],"sourceRoot":"../../src","sources":["index.tsx"],"mappings":";;AAAA,OAAOA,0BAA0B,MAAM,wBAAwB;AAE/D,eAAe,IAAIA,0BAA0B,CAAC,CAAC","ignoreList":[]}

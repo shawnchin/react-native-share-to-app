@@ -1,15 +1,14 @@
 import { AppState, Linking, NativeModules, Platform } from 'react-native';
 import type {
   IReceiveSharingIntent,
-  IUtils,
+  IReturnData,
+  ISharedMediaIOS,
 } from './ReceiveSharingIntent.interfaces';
-import Utils from './utils';
 
 const { ReceiveSharingIntent } = NativeModules;
 
 class ReceiveSharingIntentModule implements IReceiveSharingIntent {
   private isIos: boolean = Platform.OS === 'ios';
-  private utils: IUtils = new Utils();
   private isClear: boolean = false;
 
   subscribeToSharedFiles(
@@ -52,8 +51,8 @@ class ReceiveSharingIntentModule implements IReceiveSharingIntent {
   ) {
     if (this.isIos) {
       ReceiveSharingIntent.getFileNames(url)
-        .then((data: any) => {
-          let files = this.utils.sortData(data);
+        .then((data: string) => {
+          let files = this.parseIosPayload(data);
           handler(files);
         })
         .catch((e: any) => errorHandler(e));
@@ -65,6 +64,56 @@ class ReceiveSharingIntentModule implements IReceiveSharingIntent {
         })
         .catch((e: any) => errorHandler(e));
     }
+  }
+
+  private parseIosPayload(data: string): Array<IReturnData> {
+    const defaults: IReturnData = {
+      filePath: null,
+      text: null,
+      weblink: null,
+      contentUri: null,
+      fileName: null,
+    };
+    const file = data;
+    if (file.startsWith('text:')) {
+      const text = file.replace('text:', '');
+      if (this.isHttpUrl(text)) {
+        return [{ ...defaults, weblink: text }];
+      } else {
+        return [{ ...defaults, text: text }];
+      }
+    } else if (file.startsWith('webUrl:')) {
+      const weblink: string = file.replace('webUrl:', '');
+      return [{ ...defaults, weblink: weblink }];
+    } else {
+      try {
+        const files = JSON.parse(file) as ISharedMediaIOS[];
+        return files.map((f) => ({
+          ...defaults,
+          fileName: f.fileName || this.getFileNameFromPath(f.path),
+          filePath: f.path,
+        }));
+      } catch (error) {
+        return [{ ...defaults }];
+      }
+    }
+  }
+
+  private isHttpUrl(text: string): boolean {
+    if (!text.startsWith('http')) {
+      return false;
+    }
+
+    try {
+      let url = new URL(text); // throws if not URL
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  private getFileNameFromPath(file: string): string {
+    return file.replace(/^.*[\\/:]/, '');
   }
 }
 

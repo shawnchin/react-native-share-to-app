@@ -88,7 +88,8 @@ class QwilShareViewController: UIViewController {
           .appendingPathComponent("\(newName)")
         this.copyFile(at: url!, to: newPath)
         this.sharedMedia.append(
-          SharedMediaFile(path: newPath.absoluteString, type: .image))
+          SharedMediaFile(
+            path: newPath.absoluteString, fileName: newName, type: .image))
 
       } else {
         self?.dismissWithError(message: "Failed to access shared image")
@@ -160,7 +161,8 @@ class QwilShareViewController: UIViewController {
         this.copyFile(at: url, to: newPath)
 
         this.sharedMedia.append(
-          SharedMediaFile(path: newPath.absoluteString, type: .file))
+          SharedMediaFile(
+            path: newPath.absoluteString, fileName: newName, type: .file))
 
       } else {
         self?.dismissWithError(message: "Failed to access shared video")
@@ -187,7 +189,8 @@ class QwilShareViewController: UIViewController {
         this.copyFile(at: url, to: newPath)
 
         this.sharedMedia.append(
-          SharedMediaFile(path: newPath.absoluteString, type: .file))
+          SharedMediaFile(
+            path: newPath.absoluteString, fileName: newName, type: .file))
       } else {
         self?.dismissWithError(message: "Failed to access shared file")
       }
@@ -320,19 +323,21 @@ class QwilShareViewController: UIViewController {
 
   class SharedMediaFile: Codable {
     var path: String  // can be image, video or url path. It can also be text content
+    var fileName: String
     var type: SharedMediaType
 
     init(
-      path: String, type: SharedMediaType
+      path: String, fileName: String, type: SharedMediaType
     ) {
       self.path = path
       self.type = type
+      self.fileName = fileName
     }
 
     // Debug method to print out SharedMediaFile details in the console
     func toString() {
       print(
-        "[SharedMediaFile] \n\tpath: \(self.path)\n\ttype: \(self.type)"
+        "[SharedMediaFile] \n\tpath: \(self.path)\n\tfileName: \(self.fileName)\n\ttype: \(self.type)"
       )
     }
   }

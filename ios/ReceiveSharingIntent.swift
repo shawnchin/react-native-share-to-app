@@ -32,6 +32,34 @@ class ReceiveSharingIntent: NSObject {
         }
     }
 
+    private func compressImagesInSharedMediaFile(sharedImage: SharedMediaFile)
+        -> SharedMediaFile?
+    {
+        if let path = getAbsolutePath(for: sharedImage.path) {
+            if sharedImage.type == .image {
+                if let compressed =
+                    self.rescaleAndCompressImage(path: path)
+                {
+                    return SharedMediaFile.init(
+                        path: compressed,
+                        fileName: sharedImage.fileName,
+                        type: sharedImage.type)
+                } else {
+                    return nil
+                }
+            } else {
+                return SharedMediaFile.init(
+                    path: path,
+                    fileName: sharedImage.fileName,
+                    type: sharedImage.type
+                )
+            }
+        } else {
+            return nil
+        }
+
+    }
+
     private func handleUrl(url: URL?) -> String? {
         if let url = url {
             let appDomain = Bundle.main.bundleIdentifier!
@@ -43,25 +71,7 @@ class ReceiveSharingIntent: NSObject {
                     let sharedArray = decode(data: json)
                     let sharedMediaFiles: [SharedMediaFile] =
                         sharedArray.compactMap {
-                            if let path = getAbsolutePath(for: $0.path) {
-                                if $0.type == .image {
-                                    if let compressed =
-                                        self.rescaleAndCompressImage(
-                                            path: path)
-                                    {
-                                        return SharedMediaFile.init(
-                                            path: compressed, type: $0.type)
-                                    } else {
-                                        return nil
-                                    }
-                                } else {
-                                    return SharedMediaFile.init(
-                                        path: path, type: $0.type)
-                                }
-                            } else {
-                                return nil
-                            }
-
+                            compressImagesInSharedMediaFile(sharedImage: $0)
                         }
                     latestMedia = sharedMediaFiles
                     let json = toJson(data: latestMedia)
@@ -107,11 +117,7 @@ class ReceiveSharingIntent: NSObject {
                         maxWidth: maxImageDim, maxHeight: maxImageDim
                     ).jpegData(compressionQuality: compressionQuality) {
                         // create a new path to write compressed file to
-                        let oldFilename = (path as NSString).lastPathComponent
-                        let filenamePrefix = (oldFilename as NSString)
-                            .deletingPathExtension
-                        let newPath = getFilepathInTempDir(
-                            filenamePrefix: filenamePrefix, ext: "jpg")
+                        let newPath = getFilepathInTempDir(ext: "jpg")
 
                         // write to out compressed image and return path
                         try compressed.write(to: newPath)
@@ -125,20 +131,9 @@ class ReceiveSharingIntent: NSObject {
         return nil
     }
 
-    private func getFilepathInTempDir(filenamePrefix: String, ext: String)
-        -> URL
-    {
-        // If possible, we try to keep the same name
-        var url = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "\(filenamePrefix).\(ext)")
-
-        // If it clashes with an existing file, add a suffix to make it unique
-        if FileManager.default.fileExists(atPath: url.path) {
-            url = FileManager.default.temporaryDirectory.appendingPathComponent(
-                "\(filenamePrefix)\(Date().timestamp()).\(ext)")
-        }
-
-        return url
+    private func getFilepathInTempDir(ext: String) -> URL {
+        return FileManager.default.temporaryDirectory.appendingPathComponent(
+            "\(UUID().uuidString).\(ext)")
     }
 
     private func getAbsolutePath(for identifier: String) -> String? {
@@ -192,10 +187,12 @@ class ReceiveSharingIntent: NSObject {
 
     class SharedMediaFile: Codable {
         var path: String
+        var fileName: String
         var type: SharedMediaType
 
-        init(path: String, type: SharedMediaType) {
+        init(path: String, fileName: String, type: SharedMediaType) {
             self.path = path
+            self.fileName = fileName
             self.type = type
         }
     }
@@ -214,12 +211,6 @@ class ReceiveSharingIntent: NSObject {
     @objc
     static func requiresMainQueueSetup() -> Bool {
         return true
-    }
-}
-
-extension Date {
-    func timestamp() -> Int64 {
-        return Int64(self.timeIntervalSince1970 * 1000)
     }
 }
 

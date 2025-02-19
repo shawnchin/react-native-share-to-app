@@ -32,34 +32,6 @@ class ReceiveSharingIntent: NSObject {
         }
     }
 
-    private func compressImagesInSharedMediaFile(sharedImage: SharedMediaFile)
-        -> SharedMediaFile?
-    {
-        if let path = getAbsolutePath(for: sharedImage.path) {
-            if sharedImage.type == .image {
-                if let compressed =
-                    self.rescaleAndCompressImage(path: path)
-                {
-                    return SharedMediaFile.init(
-                        path: compressed,
-                        fileName: sharedImage.fileName,
-                        type: sharedImage.type)
-                } else {
-                    return nil
-                }
-            } else {
-                return SharedMediaFile.init(
-                    path: path,
-                    fileName: sharedImage.fileName,
-                    type: sharedImage.type
-                )
-            }
-        } else {
-            return nil
-        }
-
-    }
-
     private func handleUrl(url: URL?) -> String? {
         if let url = url {
             let appDomain = Bundle.main.bundleIdentifier!
@@ -106,6 +78,40 @@ class ReceiveSharingIntent: NSObject {
         }
         return "invalid group name"
     }
+    
+    private func compressImagesInSharedMediaFile(sharedImage: SharedMediaFile)
+        -> SharedMediaFile?
+    {
+        if let path = getAbsolutePath(for: sharedImage.path) {
+            if sharedImage.type == .image {
+                if let compressed =
+                    self.rescaleAndCompressImage(path: path)
+                {
+                    return SharedMediaFile.init(
+                        path: compressed,
+                        fileName: replaceFileExtension(
+                            fileName: sharedImage.fileName, ext: "jpg"), // image compressed to jpg
+                        type: sharedImage.type)
+                } else {
+                    return nil
+                }
+            } else {
+                return SharedMediaFile.init(
+                    path: path,
+                    fileName: sharedImage.fileName,
+                    type: sharedImage.type
+                )
+            }
+        } else {
+            return nil
+        }
+    }
+
+    private func replaceFileExtension(fileName: String, ext: String) -> String {
+        let filenamePrefix = (fileName as NSString).deletingPathExtension
+        return "\(filenamePrefix).\(ext)"
+    }
+
 
     private func rescaleAndCompressImage(path: String) -> String? {
         do {

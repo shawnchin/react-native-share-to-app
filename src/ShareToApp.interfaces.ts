@@ -1,4 +1,4 @@
-export interface IReceiveSharingIntent {
+export interface IShareToApp {
   subscribeToSharedFiles(
     handler: Function,
     errorHandler: Function,

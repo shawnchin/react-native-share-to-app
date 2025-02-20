@@ -1,4 +1,4 @@
-# react-native-receive-sharing-intent
+# react-native-share-to-app
 
 A React Native plugin that enables receiving files and text from Android Share Intent or iOS Sharing Extension. 
 
@@ -6,7 +6,7 @@ A React Native plugin that enables receiving files and text from Android Share I
 ## Installation
 
 ```bash
-$ yarn add https://github.com/shawnchin/react-native-receive-sharing-intent#<COMMIT_HASH>
+$ yarn add react-native-share-to-app
 ```
 
 ## iOS
@@ -128,10 +128,10 @@ TODO...
 
 
 ```javascript
-import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
+import ShareToApp from 'react-native-share-to-app';
 
 // To subscribe share intent
-ReceiveSharingIntent.subscribeToSharedFiles(files => {
+ShareToApp.subscribeToSharedFiles(files => {
      console.log(files); // do what you have to do with the files
    }, 
    (error) => {
@@ -142,7 +142,7 @@ ReceiveSharingIntent.subscribeToSharedFiles(files => {
 
 
 // To clear Intents
-ReceiveSharingIntent.clearReceivedFiles();
+ShareToApp.clearReceivedFiles();
 ```
 
 ## Acknowledgement

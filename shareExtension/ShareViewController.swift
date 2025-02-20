@@ -313,7 +313,7 @@ class QwilShareViewController: UIViewController {
   enum RedirectType {
     case text
     case file
-    // We don't use "media" as expected by "react-native-receive-sharing-intent" for several reasons.
+    // We don't use "media" as expected by "react-native-share-to-app" for several reasons.
     //   1. main difference between "media" and "file" is the setting of "duration" and "thumbnail"
     //      which we don't use
     //   2. the design is flawed. "type" is decided based on the last attachment in the list, which

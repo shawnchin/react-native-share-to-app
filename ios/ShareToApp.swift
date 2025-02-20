@@ -2,8 +2,8 @@ import Foundation
 import Photos
 import UIKit
 
-@objc(ReceiveSharingIntent)
-class ReceiveSharingIntent: NSObject {
+@objc(ShareToApp)
+class ShareToApp: NSObject {
 
     private var latestMedia: [SharedMediaFile]? = nil
     private var latestText: String? = nil
@@ -78,7 +78,7 @@ class ReceiveSharingIntent: NSObject {
         }
         return "invalid group name"
     }
-    
+
     private func compressImagesInSharedMediaFile(sharedImage: SharedMediaFile)
         -> SharedMediaFile?
     {

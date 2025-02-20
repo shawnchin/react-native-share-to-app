@@ -1,4 +1,4 @@
-package com.reactnativereceivesharingintent;
+package com.reactnativesharetoapp;
 
 import android.app.Activity;
 import android.app.Application;
@@ -15,17 +15,17 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 
 
-public class ReceiveSharingIntentModule extends ReactContextBaseJavaModule {
-    public final String Log_Tag = "ReceiveSharingIntent";
+public class ShareToAppModule extends ReactContextBaseJavaModule {
+    public final String Log_Tag = "ShareToApp";
 
     private final ReactApplicationContext reactContext;
-    private ReceiveSharingIntentHelper receiveSharingIntentHelper;
+    private ShareToAppHelper shareToAppHelper;
 
-    public ReceiveSharingIntentModule(ReactApplicationContext reactContext) {
+    public ShareToAppModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
         Application applicationContext = (Application) reactContext.getApplicationContext();
-        receiveSharingIntentHelper = new ReceiveSharingIntentHelper(applicationContext);
+        shareToAppHelper = new ShareToAppHelper(applicationContext);
     }
 
 
@@ -45,7 +45,7 @@ public class ReceiveSharingIntentModule extends ReactContextBaseJavaModule {
             return;
         }
         Intent intent = mActivity.getIntent();
-        receiveSharingIntentHelper.sendFileNames(reactContext, intent, promise);
+        shareToAppHelper.sendFileNames(reactContext, intent, promise);
         // mActivity.setIntent(null);
     }
 
@@ -57,13 +57,13 @@ public class ReceiveSharingIntentModule extends ReactContextBaseJavaModule {
         }
         Intent intent = mActivity.getIntent();
         if (intent != null) {
-            receiveSharingIntentHelper.clearFileNames(intent);
+            shareToAppHelper.clearFileNames(intent);
         }
     }
 
 
     @Override
     public String getName() {
-        return "ReceiveSharingIntent";
+        return "ShareToApp";
     }
 }

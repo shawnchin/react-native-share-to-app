@@ -1,3 +1,3 @@
-import ReceiveSharingIntentModule from './ReceiveSharingIntent';
+import ShareToAppModule from './ShareToApp';
 
-export default new ReceiveSharingIntentModule();
+export default new ShareToAppModule();

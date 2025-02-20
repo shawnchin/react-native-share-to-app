@@ -1,4 +1,4 @@
-export interface IReceiveSharingIntent {
+export interface IShareToApp {
     subscribeToSharedFiles(handler: Function, errorHandler: Function, protocol: string): void;
 }
 export interface IReturnData {
@@ -13,4 +13,4 @@ export interface ISharedMediaIOS {
     fileName: string;
     type: 'image' | 'video' | 'file';
 }
-//# sourceMappingURL=ReceiveSharingIntent.interfaces.d.ts.map
+//# sourceMappingURL=ShareToApp.interfaces.d.ts.map

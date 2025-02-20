@@ -1,4 +1,4 @@
-package com.reactnativereceivesharingintent;
+package com.reactnativesharetoapp;
 
 import android.app.Application;
 import android.content.ContentResolver;
@@ -22,11 +22,11 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class ReceiveSharingIntentHelper {
+public class ShareToAppHelper {
 
     private Context context;
 
-    public ReceiveSharingIntentHelper(Application context) {
+    public ShareToAppHelper(Application context) {
         this.context = context;
     }
 
@@ -105,7 +105,7 @@ public class ReceiveSharingIntentHelper {
             try {
               files.putMap("0", extractMediaContent(contentUri, context, subject));
             } catch (Exception e) {
-              Log.w("ReceiveSharingIntent", "Error extracting media", e);
+              Log.w("ShareToApp", "Error extracting media", e);
               return null;
             }
 
@@ -117,7 +117,7 @@ public class ReceiveSharingIntentHelper {
                     try {
                       files.putMap(Integer.toString(index), extractMediaContent(uri, context, subject));
                     } catch (Exception e) {
-                      Log.w("ReceiveSharingIntent", "Error extracting media", e);
+                      Log.w("ShareToApp", "Error extracting media", e);
                       return null;
                     }
 

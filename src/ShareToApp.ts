@@ -1,13 +1,13 @@
 import { AppState, Linking, NativeModules, Platform } from 'react-native';
 import type {
-  IReceiveSharingIntent,
+  IShareToApp,
   IReturnData,
   ISharedMediaIOS,
-} from './ReceiveSharingIntent.interfaces';
+} from './ShareToApp.interfaces';
 
-const { ReceiveSharingIntent } = NativeModules;
+const { ShareToApp } = NativeModules;
 
-class ReceiveSharingIntentModule implements IReceiveSharingIntent {
+class ShareToAppModule implements IShareToApp {
   private isIos: boolean = Platform.OS === 'ios';
   private isClear: boolean = false;
 
@@ -50,14 +50,14 @@ class ReceiveSharingIntentModule implements IReceiveSharingIntent {
     url: string
   ) {
     if (this.isIos) {
-      ReceiveSharingIntent.getFileNames(url)
+      ShareToApp.getFileNames(url)
         .then((data: string) => {
           let files = this.parseIosPayload(data);
           handler(files);
         })
         .catch((e: any) => errorHandler(e));
     } else {
-      ReceiveSharingIntent.getFileNames()
+      ShareToApp.getFileNames()
         .then((fileObject: any) => {
           let files = Object.keys(fileObject).map((k) => fileObject[k]);
           handler(files);
@@ -117,4 +117,4 @@ class ReceiveSharingIntentModule implements IReceiveSharingIntent {
   }
 }
 
-export default ReceiveSharingIntentModule;
+export default ShareToAppModule;

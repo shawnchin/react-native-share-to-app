@@ -1,5 +1,5 @@
-import type { IReceiveSharingIntent } from './ReceiveSharingIntent.interfaces';
-declare class ReceiveSharingIntentModule implements IReceiveSharingIntent {
+import type { IShareToApp } from './ShareToApp.interfaces';
+declare class ShareToAppModule implements IShareToApp {
     private isIos;
     private isClear;
     subscribeToSharedFiles(handler: Function, errorHandler: Function, protocol?: string): void;
@@ -9,5 +9,5 @@ declare class ReceiveSharingIntentModule implements IReceiveSharingIntent {
     private isHttpUrl;
     private getFileNameFromPath;
 }
-export default ReceiveSharingIntentModule;
-//# sourceMappingURL=ReceiveSharingIntent.d.ts.map
+export default ShareToAppModule;
+//# sourceMappingURL=ShareToApp.d.ts.map

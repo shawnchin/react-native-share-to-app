@@ -1,5 +1,5 @@
 {
-  "name": "@shawnchin/react-native-receive-sharing-intent",
+  "name": "react-native-share-to-app",
   "version": "2.0.0",
   "description": "A React Native plugin that enables receiving files and text from Android Share Intent or iOS Sharing Extension.",
   "main": "lib/commonjs/index",
@@ -13,7 +13,7 @@
     "android",
     "ios",
     "cpp",
-    "react-native-receive-sharing-intent.podspec",
+    "react-native-share-to-app.podspec",
     "!lib/typescript/example",
     "!android/build",
     "!ios/build",
@@ -36,13 +36,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/shawnchin/react-native-receive-sharing-intent",
+  "repository": "https://github.com/shawnchin/react-native-share-to-app",
   "author": "Shawn Chin",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/shawnchin/react-native-receive-sharing-intent/issues"
+    "url": "https://github.com/shawnchin/react-native-share-to-app/issues"
   },
-  "homepage": "https://github.com/shawnchin/react-native-receive-sharing-intent#readme",
+  "homepage": "https://github.com/shawnchin/react-native-share-to-app#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

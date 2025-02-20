@@ -135,22 +135,24 @@ public class ShareToAppHelper {
         Cursor queryResult = contentResolver.query(contentUri, null, null, null, null);
         queryResult.moveToFirst();
         String fileName = queryResult.getString(queryResult.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-
         String mimeType = contentResolver.getType(contentUri);
+
         if (mimeType.startsWith("image/")) {
           Compression compression = new Compression();
           File compressImage = compression.compressImage(context, filePath);
           filePath = compressImage.getPath();
-          fileName = replaceExtension(fileName, getExtension(filePath));  // compression will change file type
+          // compression always returns jpeg
+          mimeType = "image/jpeg";
+          fileName = replaceExtension(fileName, "jpg");
         }
-        return createMediaOutput(fileName, filePath, contentUri.toString(), subject);
+        return createMediaOutput(fileName, filePath, mimeType, subject);
     }
 
-    private WritableMap createMediaOutput(String fileName, String filePath, String contentUri, String subject) {
+    private WritableMap createMediaOutput(String fileName, String filePath, String mimeType, String subject) {
         WritableMap outputMap = new WritableNativeMap();
-        outputMap.putString("contentUri", contentUri);
         outputMap.putString("filePath", filePath);
         outputMap.putString("fileName", fileName);
+        outputMap.putString("mimeType", mimeType);
         outputMap.putString("weblink", null);
         outputMap.putString("text", null);
         outputMap.putString("subject", subject);
@@ -159,9 +161,9 @@ public class ShareToAppHelper {
 
     private WritableMap createTextOutput(String text, String weblink, String subject) {
         WritableMap outputMap = new WritableNativeMap();
-        outputMap.putString("contentUri", null);
         outputMap.putString("filePath", null);
         outputMap.putString("fileName", null);
+        outputMap.putString("mimeType", null);
         outputMap.putString("weblink", weblink);
         outputMap.putString("text", text);
         outputMap.putString("subject", subject);

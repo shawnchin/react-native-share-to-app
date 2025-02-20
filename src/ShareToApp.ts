@@ -69,10 +69,10 @@ class ShareToAppModule implements IShareToApp {
   private parseIosPayload(data: string): Array<IReturnData> {
     const defaults: IReturnData = {
       filePath: null,
+      fileName: null,
+      mimeType: null, // we don't have this info for IOS, so always null
       text: null,
       weblink: null,
-      contentUri: null,
-      fileName: null,
     };
     const file = data;
     if (file.startsWith('text:')) {

@@ -8,10 +8,10 @@ export interface IShareToApp {
 
 export interface IReturnData {
   filePath?: any | string;
+  fileName?: any | string;
+  mimeType?: any | string;
   text?: any | string;
   weblink?: any | string;
-  contentUri?: any | string;
-  fileName?: any | string;
 }
 
 export interface ISharedMediaIOS {

@@ -125,6 +125,7 @@ class QwilShareViewController: UIViewController {
       } else {
         self?.dismissWithError(message: "Failed to access shared text")
       }
+      onDone()
     }
   }
 

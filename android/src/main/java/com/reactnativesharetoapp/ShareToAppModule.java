@@ -45,8 +45,9 @@ public class ShareToAppModule extends ReactContextBaseJavaModule {
             return;
         }
         Intent intent = mActivity.getIntent();
+        if (intent.getBooleanExtra("INTENT_ALREADY_SENT", false) == true) { return; }
         shareToAppHelper.sendFileNames(reactContext, intent, promise);
-        // mActivity.setIntent(null);
+        intent.putExtra("INTENT_ALREADY_SENT", true);
     }
 
     @ReactMethod

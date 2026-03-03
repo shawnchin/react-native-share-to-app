@@ -78,6 +78,8 @@ class QwilShareViewController: UIViewController {
           url = dataURL
         } else if let imageData = data as? UIImage {
           url = this.saveScreenshot(imageData)
+        } else {
+          url = this.saveScreenshot(UIImage(data: data as! Data)!)
         }
 
         let newName = this.getFileName(from: url!)
